@@ -20,7 +20,6 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
-	"fmt"
 	"net"
 	"net/http"
 	"net/url"
@@ -122,16 +121,16 @@ func IsPrimaryCluster(obj, clusterObj pkgruntime.Object) bool {
 func CustomizeTLSTransport(fedCluster *fedv1b1.KubeFedCluster, clientConfig *restclient.Config) error {
 	clientTransportConfig, err := clientConfig.TransportConfig()
 	if err != nil {
-		return fmt.Errorf("Cluster %s client transport config error: %s", fedCluster.Name, err)
+		return errors.Errorf("Cluster %s client transport config error: %s", fedCluster.Name, err)
 	}
 	transportConfig, err := transport.TLSConfigFor(clientTransportConfig)
 	if err != nil {
-		return fmt.Errorf("Cluster %s transport error: %s", fedCluster.Name, err)
+		return errors.Errorf("Cluster %s transport error: %s", fedCluster.Name, err)
 	}
 
 	err = CustomizeCertificateValidation(fedCluster, transportConfig)
 	if err != nil {
-		return fmt.Errorf("Cluster %s custom certificate validation error: %s", fedCluster.Name, err)
+		return errors.Errorf("Cluster %s custom certificate validation error: %s", fedCluster.Name, err)
 	}
 
 	// using the same defaults as http.DefaultTransport
@@ -179,7 +178,7 @@ func CustomizeCertificateValidation(fedCluster *fedv1b1.KubeFedCluster, tlsConfi
 	if !ignoreSubjectName && tlsConfig.ServerName == "" {
 		apiURL, err := url.Parse(fedCluster.Spec.APIEndpoint)
 		if err != nil {
-			return fmt.Errorf("failed to identify a valid host from APIEndpoint for use in SubjectName validation")
+			return errors.Errorf("failed to identify a valid host from APIEndpoint for use in SubjectName validation")
 		}
 		tlsConfig.ServerName = apiURL.Hostname()
 	}
