@@ -268,6 +268,18 @@ func validateGreaterThan0(path *field.Path, value int64) field.ErrorList {
 }
 
 func ValidateKubeFedCluster(object *v1beta1.KubeFedCluster) field.ErrorList {
+	spec := object.Spec
+	specPath := field.NewPath("spec")
 	allErrs := field.ErrorList{}
+
+	disabledTLSValidationsPath := specPath.Child("disabledTLSValidations")
+	for i, value := range spec.DisabledTLSValidations {
+		if i > 0 && value == v1beta1.All {
+			allErrs = append(allErrs, field.Invalid(disabledTLSValidationsPath, value, "must be the value specified when skipping all TLS validations"))
+		}
+		allErrs = append(allErrs, validateEnumStrings(disabledTLSValidationsPath, string(value),
+			[]string{string(v1beta1.All), string(v1beta1.SubjectName), string(v1beta1.ValidityPeriod)})...)
+	}
+
 	return allErrs
 }
