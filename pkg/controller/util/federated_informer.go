@@ -146,7 +146,7 @@ func NewFederatedInformer(
 		if err != nil {
 			return nil, nil, err
 		}
-		store, controller := NewManagedResourceInformer(resourceClient, config.TargetNamespace, triggerFunc)
+		store, controller := NewManagedResourceInformer(resourceClient, config.TargetNamespace, apiResource, triggerFunc)
 		return store, controller, nil
 	}
 
